@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <title>Travel Wishlist</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="icon" type="image/png" href="images/icons/favicon.png"/>
+      <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+      <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+      <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+      <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+      <link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+      <link rel="stylesheet" type="text/css" href="css/util.css">
+      <link rel="stylesheet" type="text/css" href="css/main.css">
+      <script
+         src="https://code.jquery.com/jquery-3.4.1.js"
+         integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+         crossorigin="anonymous"></script>
+   </head>
+   <body>
+      <div class="container-contact100">
+         <div class="wrap-contact100">
+            <form class="contact100-form validate-form" id="placeform">
+               <span class="contact100-form-title">
+               Your Travel Wishlist!!
+               </span>
+               <div class="wrap-input100"> <!-- todo section starts-->
+                  <span class="label-input100">TODO</span>
+                  <textarea class="input100" name="message" id="msg" placeholder="Your message here..."></textarea>
+                  <span class="focus-input100"></span>
+               </div> <!-- todo section ends-->
+               <div class="wrap-input100"> <!-- place section starts -->
+                  <span class="label-input100">Enter the Place</span>
+                  <input class="input100" type="text" id="pac-input" name="place" placeholder="Eg. India Gate" autocomplete="false">
+                  <span class="focus-input100"></span>
+                  <input type="hidden" name="long_data" id="long_data">
+                  <input type="hidden" name="lat_data" id="lat_data">
+               </div> <!-- place section ends -->
+               <div class="wrap-input100"> <!-- month section starts -->
+                  <span class="label-input100">Which month do you want to go?</span><br>
+                  <select class="selclass" name="month" id="selid">
+                     <option value="January">January</option>
+                     <option value="Febuary">Febuary</option>
+                     <option value="March">March</option>
+                     <option value="April">April</option>
+                     <option value="May">May</option>
+                     <option value="June">June</option>
+                     <option value="July">July</option>
+                     <option value="August">August</option>
+                     <option value="September">September</option>
+                     <option value="October">October</option>
+                     <option value="November">November</option>
+                     <option value="December">December</option>
+                  </select>
+                  <span class="focus-input100"></span>
+               </div> <!-- month section ends -->
+               <div class="wrap-input100"> <!-- time section starts -->
+                  <span class="label-input100">What time do you want to go?(optional)</span>
+                  <input class="input100" type="time" name="time">
+                  <span class="focus-input100"></span>
+               </div> <!-- time section ends -->
+               <div class="container-contact100-form-btn"> <!-- button section starts-->
+                  <div class="wrap-contact100-form-btn">
+                     <div class="contact100-form-bgbtn"></div>
+                     <button class="contact100-form-btn" id="savebtn" type="button">
+                     <span>
+                     Save Details
+                     <i class="fa fa-long-arrow-right m-l-7" aria-hidden="true"></i>
+                     </span>
+                     </button>
+                  </div>
+               </div> <!-- button section ends -->
+            </form>
+         </div>
+      </div>
+      <div id="allplacesdiv"> <!-- to display all the user places -->
+         <table id="allplacetable" cellpadding="10" cellspacing="10">
+            <thead>
+               <th>Place</th>
+               <th>TODO</th>
+               <th>Month</th>
+               <th>Time</th>
+            </thead>
+            <tbody></tbody>
+         </table>
+      </div> <!-- to display all the user places -->
+      <script type="text/javascript">
+         function fetchLocation() { // to get autofill location from google
+         	var input = document.getElementById('pac-input'); // value of searchbox
+         	var autocomplete = new google.maps.places.Autocomplete(input); //used to autocomplete the searchbox
+         
+         	autocomplete.addListener('place_changed', function() { // to get the latitude and longitude of the search
+         
+                           var place = autocomplete.getPlace();
+                           // console.log(place.geometry.location.lat());
+                           // console.log(place.geometry.location.lng());
+                           var lat = place.geometry.location.lat(); //variable storing lattitude
+                           var lng = place.geometry.location.lng(); //variable storing longitude
+                           document.getElementById('lat_data').value=lat; // to set value
+                           document.getElementById('long_data').value=lng; // to set value
+                        });
+         }
+         
+         function refreshtable() {
+              	$.ajax({    //create an ajax request to display
+                      type: "GET",
+                      url: "getplaces.php",             
+                      dataType: "html",   //expect html to be returned                
+                      success: function(response){                    
+                          $("#allplacetable tbody").html(response);
+                          // alert(response);
+                    }
+              	});
+            }
+         
+            function refreshcontent() { //to reset all the feilds after adding a search item
+            	$('#msg').val('');
+            	$('#pac-input').val('');
+            	$('#lat_data').val('');
+            	$('#long_data').val('');
+            	$('#time').val('');
+            }
+         
+         $(document).ready(function () {
+         	refreshtable(); //to load table on document load
+         	// console.log($('#msg').val());
+         	$('#savebtn').click(function() {
+         		if($('#msg').val() == '' || $('input[name="place"]').val() == '') { //javascript verification
+         			alert('enter all the required fields');
+         			event.preventDefault();// to stop the execution
+         		}
+         		else {
+         			$.ajax({ // to add data using ajax
+                       url: 'adddata.php',
+                       type: 'GET',
+                       data: {
+                           message: $('#msg').val(),
+                           place: $('input[name="place"]').val(),
+                           lat_data: $('input[name="lat_data"]').val(),
+                           long_data: $('input[name="long_data"]').val(),
+                           month: $('#selid').val(),
+                           time: $('input[name="time"]').val()                  
+                       }
+                   }).done(function(response){
+                           // console.log(data);
+                           alert(response);
+                           refreshtable(); //refresh the table without reload
+                           refreshcontent(); // to empty the content
+                   });
+               }
+         		
+         	})
+         })
+      </script>
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0InzEbEsN3Ch5soJL1y0DvPXakbrdoNg
+         &libraries=places&callback=fetchLocation"
+         async defer></script>
+      <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+      <script src="vendor/animsition/js/animsition.min.js"></script>
+      <script src="vendor/bootstrap/js/popper.js"></script>
+      <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+      <script src="js/main.js"></script>
+</html>
